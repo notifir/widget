@@ -1,7 +1,7 @@
 {
   "name": "wc-notification-bell",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "keywords": [
     "webcomponents",
     "lit"
@@ -49,7 +49,7 @@
     "vite": "^2.9.6"
   },
   "lint-staged": {
-    "*.js": "eslint --fix"
+    "*": "eslint"
   },
   "customElements": "dist/custom-elements.json"
 }
