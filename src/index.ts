@@ -4,6 +4,18 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { ApolloQuery, html } from '@apollo-elements/lit-apollo'
 import { ApolloClient, ApolloLink, InMemoryCache, createHttpLink } from '@apollo/client/core'
 
+interface Notification {
+  payload: string
+  type: string
+  updatedAt: string
+}
+
+interface Data {
+  allNotifications: {
+    nodes: Array<Notification>
+  }
+}
+
 const createLink = (uri: string, userKey: string) => createHttpLink({ uri: uri || '/graphql/', headers: { 'authorization-key': userKey } })
 
 export const client = (uri: string, userKey: string) =>
@@ -114,10 +126,10 @@ export class NotificationBell extends ApolloQuery {
     mock = false
 
   @property({ type: String })
-    apiUrl = null
+    apiUrl = ''
 
   @property({ type: String })
-    userKey = null
+    userKey = ''
 
   @state()
   protected _open = false
@@ -126,17 +138,23 @@ export class NotificationBell extends ApolloQuery {
     this._open = !this._open
   }
 
-  private format(str: string, values: string) {
+  protected _format(str: string, values: string) {
     const args = JSON.parse(values)
-    for (const [key, value] of Object.entries(args))
-      str = str.split(`{${key}}`).join(value)
+    for (const attr in args)
+      str = str.split(`\${${attr}}`).join(args[attr])
 
     return str
   }
 
-  private templates = {
-    'entry-created': 'The entry {entryTitle} in {stepTitle} was created in {folderTitle} by {user}.',
-    'entry-moved': 'The entry {entryTitle} in {folderTitle} was moved from step {fromStepTitle} to step {toStepTitle} by {user}.',
+  protected _templates = (type: string) => {
+    switch (type) {
+      case 'entry-created':
+        return 'The entry {entryTitle} in {stepTitle} was created in {folderTitle} by {user}.'
+      case 'entry-moved':
+        return 'The entry {entryTitle} in {folderTitle} was moved from step {fromStepTitle} to step {toStepTitle} by {user}.'
+      default:
+        return ''
+    }
   }
 
   render() {
@@ -148,14 +166,14 @@ export class NotificationBell extends ApolloQuery {
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
           </svg>
-          ${data && data.allNotifications && data.allNotifications.nodes.length > 0
-          && html`<div class="x-notifications-bell-counter">${data.allNotifications.nodes.length}</div>`}
+          ${data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.length > 0
+          && html`<div class="x-notifications-bell-counter">${(data as Data).allNotifications.nodes.length}</div>`}
         </div>
         
         <div class="x-notifications-popup-container ${this._open ? 'x-notifications-open' : 'x-notifications-close'}">
-          ${!loading && data && data.allNotifications && data.allNotifications.nodes.map(item =>
+          ${!loading && data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.map((item: Notification) =>
             html`<div class = "x-notifications-list-element">
-              <div class = "x-notifications-list-element-text">${this.format(this.templates[item.type], item.payload)}</div>
+              <div class = "x-notifications-list-element-text">${this._format(this._templates(item.type), item.payload)}</div>
               <div class = "x-notifications-list-element-sub-text">${new Date(item.updatedAt).toLocaleString()}</div>
               </a>
             </div>`)}
