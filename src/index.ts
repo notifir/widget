@@ -57,27 +57,27 @@ export class NotificationBell extends ApolloQuery {
     .x-notifications-bell {
       cursor: pointer;
       position: relative;
-      width: 2rem;
-      height: 2rem;
+      width: 1.5rem;
+      height: 1.5rem;
     }
 
     .x-notifications-bell svg {
-      width: 2rem;
-      height: 2rem;
+      width: 1.5rem;
+      height: 1.5rem;
     }
 
     .x-notifications-bell-counter { 
       position: absolute;
       top: 0%;
       left: 60%;
-      font-size: 0.6rem;
+      font-size: 0.5rem;
       border-radius: 50%;
-      width: 1rem;
-      height: 1rem;
+      width: 0.7rem;
+      height: 0.7rem;
       background-color: red;
       color: #FFFFFF;
       text-align: center;
-      line-height: 1rem;
+      line-height: 0.7rem;
     }
 
     .x-notifications-bell-counter:empty {
