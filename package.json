@@ -32,7 +32,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@apollo-elements/lit-apollo": "^5.0.0",
+    "@apollo-elements/lit-apollo": "^5.0.3",
     "@apollo/client": "^3.6.6",
     "lit": "^2.2.3"
   },
@@ -46,6 +46,7 @@
     "eslint": "^8.14.0",
     "esno": "^0.14.1",
     "graphql": "^15.0.0",
+    "graphql-tag": "^2.12.6",
     "husky": "^8.0.1",
     "lint-staged": "^12.4.3",
     "typescript": "^4.6.4",

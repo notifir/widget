@@ -74,7 +74,7 @@ export class NotificationBell extends ApolloQuery {
       border-radius: 50%;
       width: 1rem;
       height: 1rem;
-      background-color: #FF4C13;
+      background-color: red;
       color: #FFFFFF;
       text-align: center;
       line-height: 1rem;
@@ -87,38 +87,47 @@ export class NotificationBell extends ApolloQuery {
     .x-notifications-popup-container {
       width: 400px;
       height: 400px;
-      transition: 0.5s;
       font-size: 1rem;
       position: absolute;
       overflow-y: scroll;
       padding: 10px;
       margin-top: 10px;
       border-radius: 1%;
-      background-color: #FFFFFF;
-      border: 1px solid rgb(0,0,0,0.1);
-      -webkit-box-shadow: 10px 10px 23px 0px rgba(0,0,0,0.1);
-      -moz-box-shadow: 10px 10px 23px 0px rgba(0,0,0,0.1);
-      box-shadow: 10px 10px 23px 0px rgba(0,0,0,0.1);
+      border: 1px solid rgb(0,0,0,0.1);        
+      background-color: #F6FAFD;
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 300;
+      font-family: Verdana, geneva, sans-serif;
+    }
+    
+    .x-notifications-header {
+      color: #444C60;
+      font-weight: bold;
+      padding: 7px 15px 13px;
+      border-bottom: 1px solid #bbb;
     }
 
     .x-notifications-list-element {
-      padding: 10px 10px;
-      background-color: #F4F4F4;
-      transition: 0.5s;
-      border-style: none none solid none;
-      border-color: red;
+      padding: 8px;
+    }
+    
+    .divider {
+      border-top: 1px solid #bbb;
     }
 
     .x-notifications-list-element-text {
+      font-size: 14px;
+      line-height: 1.2em;
+      color: #444C60;
       vertical-align: top;
-      font-size: 1.15rem;
-      padding: 5px 10px 0px 10px;
+      padding: 10px 0px 0px 10px;
     }
     
     .x-notifications-list-element-sub-text {
       padding: 5px 10px 0px 10px;
-      font-size: 1rem;
-      color: grey;
+      color: #757C85;
+      font-size: 13px;
     }
   `
 
@@ -141,7 +150,7 @@ export class NotificationBell extends ApolloQuery {
   protected _format(str: string, values: string) {
     const args = JSON.parse(values)
     for (const attr in args)
-      str = str.split(`\${${attr}}`).join(args[attr])
+      str = str.split(`{${attr}}`).join(args[attr])
 
     return str
   }
@@ -163,17 +172,18 @@ export class NotificationBell extends ApolloQuery {
     return html`
       <div class="x-notifications-bell-wrapper">
         <div class="x-notifications-bell" @click="${this._handleBellClick}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
           </svg>
           ${data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.length > 0
           && html`<div class="x-notifications-bell-counter">${(data as Data).allNotifications.nodes.length}</div>`}
         </div>
         
         <div class="x-notifications-popup-container ${this._open ? 'x-notifications-open' : 'x-notifications-close'}">
-          ${!loading && data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.map((item: Notification) =>
+          <div class = "x-notifications-header">Notifications</div>
+          ${!loading && data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.map((item: Notification, index) =>
             html`<div class = "x-notifications-list-element">
-              <div class = "x-notifications-list-element-text">${this._format(this._templates(item.type), item.payload)}</div>
+              <div class = "x-notifications-list-element-text ${index === 0 ? '' : 'divider'}">${this._format(this._templates(item.type), item.payload)}</div>
               <div class = "x-notifications-list-element-sub-text">${new Date(item.updatedAt).toLocaleString()}</div>
               </a>
             </div>`)}

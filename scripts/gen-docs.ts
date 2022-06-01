@@ -13,9 +13,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // ignore styles & methods
 delete manifest.modules[0].exports
 manifest.modules[0].declarations[0].members
-  = manifest.modules[0].declarations[0].members.filter(
-    member => member.name !== 'styles' && member.kind !== 'method',
-  )
+  = manifest.modules[0].declarations[0].members
+    && manifest.modules[0].declarations[0].members.filter(
+      member => member.name !== 'styles' && member.kind !== 'method',
+    )
 
 // const customManifest = manifest
 
