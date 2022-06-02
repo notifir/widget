@@ -44,13 +44,6 @@ const query = gql`
 @customElement('notification-bell')
 export class NotificationBell extends ApolloQuery {
   static styles = css`
-    .x-notifications-popup-container {
-      width: 400px;
-      height: 400px;
-      z-index: 9999;
-      border: 1px solid #ccc;
-    }
-
     .x-notifications-close { display: none; }
     .x-notifications-open { display: block; }
 
@@ -83,15 +76,18 @@ export class NotificationBell extends ApolloQuery {
     .x-notifications-bell-counter:empty {
       display: none;
     }
+    
+    .x-notifications-popup {
+      position: fixed;
+      z-index: 1000;
+    }
 
     .x-notifications-popup-container {
       width: 400px;
       height: 400px;
       font-size: 1rem;
-      position: absolute;
-      overflow-y: scroll;
+      position: absolute;     
       padding: 10px;
-      margin-top: 10px;
       border-radius: 1%;
       border: 1px solid rgb(0,0,0,0.1);        
       background-color: #F6FAFD;
@@ -99,6 +95,8 @@ export class NotificationBell extends ApolloQuery {
       line-height: 17px;
       font-weight: 300;
       font-family: Verdana, geneva, sans-serif;
+      right: 0;
+      margin-right: -10px;
     }
     
     .x-notifications-header {
@@ -106,6 +104,12 @@ export class NotificationBell extends ApolloQuery {
       font-weight: bold;
       padding: 7px 15px 13px;
       border-bottom: 1px solid #bbb;
+    }
+    
+    .x-notifications-list {
+      height: 370px;
+      position: absolute;
+      overflow-y: scroll;
     }
 
     .x-notifications-list-element {
@@ -175,18 +179,22 @@ export class NotificationBell extends ApolloQuery {
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
           </svg>
+         
           ${data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.length > 0
           && html`<div class="x-notifications-bell-counter">${(data as Data).allNotifications.nodes.length}</div>`}
         </div>
-        
-        <div class="x-notifications-popup-container ${this._open ? 'x-notifications-open' : 'x-notifications-close'}">
-          <div class = "x-notifications-header">Notifications</div>
-          ${!loading && data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.map((item: Notification, index) =>
-            html`<div class = "x-notifications-list-element">
-              <div class = "x-notifications-list-element-text ${index === 0 ? '' : 'divider'}">${this._format(this._templates(item.type), item.payload)}</div>
-              <div class = "x-notifications-list-element-sub-text">${new Date(item.updatedAt).toLocaleString()}</div>
-              </a>
-            </div>`)}
+
+        <div class="x-notifications-popup">
+          <div class="x-notifications-popup-container ${this._open ? 'x-notifications-open' : 'x-notifications-close'}">
+            <div class = "x-notifications-header">Notifications</div>
+            <div class = "x-notifications-list">
+              ${!loading && data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.map((item: Notification, index) =>
+                html`<div class = "x-notifications-list-element">
+                  <div class = "x-notifications-list-element-text ${index === 0 ? '' : 'divider'}">${this._format(this._templates(item.type), item.payload)}</div>
+                    <div class = "x-notifications-list-element-sub-text">${new Date(item.updatedAt).toLocaleString()}</div>
+                </div>`)}
+            </div>
+          </div>
         </div>
       </div>
     `
