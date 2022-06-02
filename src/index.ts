@@ -23,7 +23,7 @@ export const client = (uri: string, userKey: string) =>
 
 const query = gql`
   query getUserNotifications {
-    allNotifications {
+    allNotifications(orderBy: CREATED_AT_DESC) {
       nodes {
         id
         createdAt
