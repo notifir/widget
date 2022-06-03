@@ -2,7 +2,30 @@ import { gql } from 'graphql-tag'
 import { css } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ApolloQuery, html } from '@apollo-elements/lit-apollo'
-import { ApolloClient, ApolloLink, InMemoryCache, createHttpLink } from '@apollo/client/core'
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client/core'
+import { WebSocketLink } from '@apollo/client/link/ws'
+import { getMainDefinition } from '@apollo/client/utilities'
+
+const createWsLink = (uri: string, userKey: string) => {
+  const url = new URL(uri)
+  const protocol = url.hostname.includes('localhost') ? 'ws' : 'wss'
+  const options = { reconnect: true, connectionParams: { 'authorization-key': userKey } }
+  const wsUri = `${protocol}://${url.host}${url.pathname}`
+
+  return new WebSocketLink({ uri: wsUri, options })
+}
+
+const createHttpLink = (uri: string, userKey: string) =>
+  new HttpLink({ uri, headers: { 'authorization-key': userKey } })
+
+const splitLink = (uri: string, userKey: string) => ApolloLink.split(
+  ({ query }) => {
+    const definition = getMainDefinition(query)
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
+  },
+  createWsLink(uri, userKey),
+  createHttpLink(uri, userKey),
+)
 
 interface Notification {
   payload: string
@@ -16,14 +39,36 @@ interface Data {
   }
 }
 
-const createLink = (uri: string, userKey: string) => createHttpLink({ uri: uri || '/graphql/', headers: { 'authorization-key': userKey } })
+interface SubscriptionData {
+  data: {
+    notificationsUpdated: {
+      notification: Notification
+    }
+  }
+}
 
 export const client = (uri: string, userKey: string) =>
-  new ApolloClient({ cache: new InMemoryCache(), link: ApolloLink.from([createLink(uri, userKey)]) })
+  new ApolloClient({
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            allNotifications: {
+              merge(existing = [], incoming: any) {
+                return { ...existing, ...incoming }
+              },
+            },
+          },
+        },
+      },
+    }),
+    link: splitLink(uri, userKey),
+    ssrForceFetchDelay: 100,
+  })
 
 const query = gql`
   query getUserNotifications {
-    allNotifications(orderBy: CREATED_AT_DESC) {
+    allNotifications(orderBy: CREATED_AT_DESC) {     
       nodes {
         id
         createdAt
@@ -37,6 +82,23 @@ const query = gql`
     }
   }
 `
+
+const subscription = gql`
+  subscription notificationChanged($userId: String!) {
+    notificationsUpdated(userId: $userId) {
+      event
+      notification {
+        id
+        createdAt
+        nodeId
+        payload
+        read
+        type
+        updatedAt
+        userId
+      }
+    }
+  }`
 
 /**
  * Notification Bell.
@@ -204,6 +266,22 @@ export class NotificationBell extends ApolloQuery {
     super.connectedCallback()
     this.client = client(this.apiUrl, this.userKey)
     this.query = query
+  }
+
+  firstUpdated() {
+    this.subscribeToMore({
+      document: subscription,
+      variables: { userId: this.userKey },
+      updateQuery: (prev, { subscriptionData }) => {
+        const { notification } = (subscriptionData as SubscriptionData).data.notificationsUpdated
+
+        return Object.assign({}, prev, {
+          allNotifications: {
+            nodes: [notification, ...(prev as Data).allNotifications.nodes],
+          },
+        })
+      },
+    })
   }
 }
 

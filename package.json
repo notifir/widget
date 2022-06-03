@@ -1,7 +1,7 @@
 {
   "name": "wc-notification-bell",
   "type": "module",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "keywords": [
     "webcomponents",
     "lit"
@@ -34,6 +34,7 @@
   "dependencies": {
     "@apollo-elements/lit-apollo": "^5.0.3",
     "@apollo/client": "^3.6.6",
+    "graphql-ws": "^5.8.2",
     "lit": "^2.2.3"
   },
   "devDependencies": {
@@ -43,6 +44,7 @@
     "@custom-elements-manifest/analyzer": "^0.5.7",
     "@custom-elements-manifest/to-markdown": "^0.1.0",
     "@types/node": "^17.0.30",
+    "@types/ws": "^8.5.3",
     "eslint": "^8.14.0",
     "esno": "^0.14.1",
     "graphql": "^15.0.0",
