@@ -31,6 +31,7 @@ interface Notification {
   payload: string
   type: string
   updatedAt: string
+  read: boolean
 }
 
 interface Data {
@@ -125,14 +126,14 @@ export class NotificationBell extends ApolloQuery {
       position: absolute;
       top: 0%;
       left: 60%;
-      font-size: 0.5rem;
+      font-size: 0.55rem;
       border-radius: 50%;
-      width: 0.7rem;
-      height: 0.7rem;
+      width: 0.8rem;
+      height: 0.8rem;
       background-color: red;
       color: #FFFFFF;
       text-align: center;
-      line-height: 0.7rem;
+      line-height: 0.8rem;
     }
 
     .x-notifications-bell-counter:empty {
@@ -164,7 +165,7 @@ export class NotificationBell extends ApolloQuery {
     .x-notifications-header {
       color: #444C60;
       font-weight: bold;
-      padding: 7px 15px 13px;
+      padding: 7px 17px 13px;
       border-bottom: 1px solid #bbb;
     }
     
@@ -175,7 +176,8 @@ export class NotificationBell extends ApolloQuery {
     }
 
     .x-notifications-list-element {
-      padding: 8px;
+      padding: 0px 18px 12px 8px;
+      position: relative;
     }
     
     .divider {
@@ -187,13 +189,43 @@ export class NotificationBell extends ApolloQuery {
       line-height: 1.2em;
       color: #444C60;
       vertical-align: top;
-      padding: 10px 0px 0px 10px;
+      padding: 12px 20px 0px 8px;
     }
     
     .x-notifications-list-element-sub-text {
-      padding: 5px 10px 0px 10px;
+      padding: 5px 10px 0px 8px;
       color: #757C85;
       font-size: 13px;
+    }
+       
+    @keyframes pulsing {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 152, 214, 0.7);
+      }
+  
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 7px rgba(0, 152, 214, 0);
+      }
+  
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 152, 214, 0);
+      }
+    }
+    
+    .unread {   
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      width: 5px;
+      height: 5px;
+      border: 1px solid #0098D6;      
+      border-radius: 50%;
+      transform: scale(1);
+      animation: pulsing 2s infinite;
+      background: rgba(0, 152, 214, 1);
     }
   `
 
@@ -234,6 +266,8 @@ export class NotificationBell extends ApolloQuery {
 
   render() {
     const { data, loading } = this
+    const notifications = data && (data as Data).allNotifications && (data as Data).allNotifications.nodes
+    const unreadCount = notifications && (notifications as Array<Notification>).filter(node => !node.read).length
 
     return html`
       <div class="x-notifications-bell-wrapper">
@@ -242,17 +276,18 @@ export class NotificationBell extends ApolloQuery {
             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
           </svg>
          
-          ${data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.length > 0
-          && html`<div class="x-notifications-bell-counter">${(data as Data).allNotifications.nodes.length}</div>`}
+          ${(unreadCount as number) > 0 && html`<div class="x-notifications-bell-counter">${unreadCount}</div>`}
         </div>
 
         <div class="x-notifications-popup">
           <div class="x-notifications-popup-container ${this._open ? 'x-notifications-open' : 'x-notifications-close'}">
             <div class = "x-notifications-header">Notifications</div>
             <div class = "x-notifications-list">
-              ${!loading && data && (data as Data).allNotifications && (data as Data).allNotifications.nodes.map((item: Notification, index) =>
+              ${!loading && notifications && (notifications as Array<Notification>).map((item, index) =>
                 html`<div class = "x-notifications-list-element">
-                  <div class = "x-notifications-list-element-text ${index === 0 ? '' : 'divider'}">${this._format(this._templates(item.type), item.payload)}</div>
+                  ${index !== 0 ? html`<div class="divider"></div>` : ''}
+                  ${!item.read ? html`<div class = "unread"></div>` : ''}
+                  <div class = "x-notifications-list-element-text">${this._format(this._templates(item.type), item.payload)}</div>
                     <div class = "x-notifications-list-element-sub-text">${new Date(item.updatedAt).toLocaleString()}</div>
                 </div>`)}
             </div>
