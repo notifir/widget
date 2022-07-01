@@ -28,8 +28,10 @@ const splitLink = (uri: string, userKey: string) => ApolloLink.split(
 )
 
 interface Notification {
+  id: string
   payload: string
   type: string
+  createdAt: string
   updatedAt: string
   read: boolean
 }
@@ -50,19 +52,7 @@ interface SubscriptionData {
 
 export const client = (uri: string, userKey: string) =>
   new ApolloClient({
-    cache: new InMemoryCache({
-      typePolicies: {
-        Query: {
-          fields: {
-            allNotifications: {
-              merge(existing = [], incoming: any) {
-                return { ...existing, ...incoming }
-              },
-            },
-          },
-        },
-      },
-    }),
+    cache: new InMemoryCache(),
     link: splitLink(uri, userKey),
     ssrForceFetchDelay: 100,
   })
@@ -91,6 +81,38 @@ const subscription = gql`
       notification {
         id
         createdAt
+        nodeId
+        payload
+        read
+        type
+        updatedAt
+        userId
+      }
+    }
+  }`
+
+const markAsRead = gql`
+  mutation MarkAsRead($id: UUID!) {
+    updateNotificationById(input: {notificationPatch: {read: true}, id: $id}) {
+      notification {
+        id
+        createdAt
+        nodeId
+        payload
+        read
+        type
+        updatedAt
+        userId
+      }
+    }
+  }`
+
+const markAllAsRead = gql`
+  mutation MarkAllAsRead {
+    markAllAsRead(input: {}) {
+      notifications {
+        createdAt
+        id
         nodeId
         payload
         read
@@ -143,6 +165,45 @@ export class NotificationBell extends ApolloQuery {
     }
   }
 
+  protected async _markAsRead(id: String) {
+    if (this.client) {
+      return await this.client.mutate({
+        mutation: markAsRead,
+        variables: { id },
+        update: (cache, { data: { updateNotificationById: { notification } } }) => {
+          const { allNotifications } = <Data> cache.readQuery({ query })
+          const result = allNotifications.nodes.map((obj: Notification) => notification.id === obj.id ? notification : obj)
+
+          cache.writeQuery({
+            query,
+            data: { allNotifications: { nodes: result } },
+          })
+        },
+      })
+    }
+
+    return null
+  }
+
+  protected async _markAllAsRead() {
+    if (this.client) {
+      return await this.client.mutate({
+        mutation: markAllAsRead,
+        update: (cache, { data: { markAllAsRead: { notifications } } }) => {
+          const { allNotifications } = <Data> cache.readQuery({ query })
+          const result = allNotifications.nodes.map(obj => notifications.find((n: Notification) => n.id === obj.id) || obj)
+
+          cache.writeQuery({
+            query,
+            data: { allNotifications: { nodes: result } },
+          })
+        },
+      })
+    }
+
+    return null
+  }
+
   render() {
     const { data, loading } = this
     const items = data && (data as Data).allNotifications && (data as Data).allNotifications.nodes
@@ -159,10 +220,13 @@ export class NotificationBell extends ApolloQuery {
 
         <div class="popup">
           <div class="container ${this._open ? 'open' : 'close'}">
-            <div class="header">Notifications</div>
+            <div class="header">
+              <span class="header-link" @click="${() => this._markAllAsRead()}">Mark all as read</span>
+              <span class="header-title">Notifications</span>
+            </div>
             <div class="items-list">
               ${!loading && items && (items as Array<Notification>).map((item, index) =>
-                html`<div class="item">
+                html`<div class="item" @click="${() => this._markAsRead(item.id)}">
                   ${index !== 0 ? html`<div class="divider"></div>` : ''} 
                   ${!item.read ? html`<div class="item-unread"></div>` : ''}
                   <div class="item-text-primary">${this._format(this._templates(item.type), item.payload)}</div>

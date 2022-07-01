@@ -41,7 +41,7 @@ export const bellStyles = css`
     height: 400px;
     font-size: 1rem;
     position: absolute;     
-    padding: 10px;
+    padding: 10px 10px 10px 0px;
     border-radius: 1%;
     border: 1px solid rgb(0,0,0,0.1);        
     background-color: #F6FAFD;
@@ -61,11 +61,21 @@ export const bellStyles = css`
     display: block; 
   }
 
-  .header {
-    color: #444C60;
-    font-weight: bold;
+  .header {  
     padding: 7px 17px 13px;
     border-bottom: 1px solid #bbb;
+    margin-left: 10px;
+  }
+  
+  .header-title {
+    color: #444C60;
+    font-weight: bold;
+  }
+  
+  .header-link {
+    color: rgb(1, 73, 149);
+    float: right;
+    cursor: pointer;
   }
  
   .items-list {
@@ -75,8 +85,12 @@ export const bellStyles = css`
   }
 
   .item {
-    padding: 0px 18px 12px 8px;
+    padding: 0px 18px 12px 18px;
     position: relative;
+  }
+    
+  .item:hover {
+    background: #f1f4f6;
   }
 
   .item-text-primary {
