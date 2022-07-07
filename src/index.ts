@@ -5,6 +5,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { bellStyles } from './bellStyles'
 import { client } from './client'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
+import { formatDate, formatString } from './util/format'
 
 interface Notification {
   id: string
@@ -74,25 +75,6 @@ export class NotificationBell extends ApolloQuery {
     this._open = !this._open
   }
 
-  protected _format(str: string, values: string) {
-    const args = JSON.parse(values)
-    for (const attr in args)
-      str = str.split(`{${attr}}`).join(args[attr])
-
-    return str
-  }
-
-  protected _templates = (type: string) => {
-    switch (type) {
-      case 'entry-created':
-        return 'The entry {entryTitle} in {stepTitle} was created in {folderTitle} by {user}.'
-      case 'entry-moved':
-        return 'The entry {entryTitle} in {folderTitle} was moved from step {fromStepTitle} to step {toStepTitle} by {user}.'
-      default:
-        return ''
-    }
-  }
-
   protected async _markAsRead(id: String, read: boolean) {
     if (this.client && !read)
       return await this.client.mutate({ mutation: markAsRead, variables: { id } })
@@ -137,10 +119,10 @@ export class NotificationBell extends ApolloQuery {
                     ${index !== 0 ? html`<div class="divider"></div>` : ''} 
                     ${!item.read ? html`<div class="item-unread"></div>` : ''}
                     <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || {})}>
-                      ${this._format(item.template.content, item.payload)}
+                      ${formatString(item.template.content, item.payload)}
                     </div>
                     <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || {})}>
-                      ${new Date(item.updatedAt).toLocaleString()}
+                      ${formatDate(item.updatedAt, this.locale)}
                     </div>
                   </div>
                 `,
