@@ -1,31 +1,10 @@
-import { gql } from 'graphql-tag'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ApolloQuery, html } from '@apollo-elements/lit-apollo'
-import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client/core'
-import { WebSocketLink } from '@apollo/client/link/ws'
-import { getMainDefinition } from '@apollo/client/utilities'
+import type { StyleInfo } from 'lit/directives/style-map.js'
+import { styleMap } from 'lit/directives/style-map.js'
 import { bellStyles } from './bellStyles'
-
-const createWsLink = (uri: string, userKey: string) => {
-  const url = new URL(uri)
-  const protocol = url.hostname.includes('localhost') ? 'ws' : 'wss'
-  const options = { reconnect: true, connectionParams: { 'authorization-key': userKey } }
-  const wsUri = `${protocol}://${url.host}${url.pathname}`
-
-  return new WebSocketLink({ uri: wsUri, options })
-}
-
-const createHttpLink = (uri: string, userKey: string) =>
-  new HttpLink({ uri, headers: { 'authorization-key': userKey } })
-
-const splitLink = (uri: string, userKey: string) => ApolloLink.split(
-  ({ query }) => {
-    const definition = getMainDefinition(query)
-    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
-  },
-  createWsLink(uri, userKey),
-  createHttpLink(uri, userKey),
-)
+import { client } from './client'
+import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
 
 interface Notification {
   id: string
@@ -34,11 +13,15 @@ interface Notification {
   createdAt: string
   updatedAt: string
   read: boolean
+  template: {
+    content: string
+  }
 }
 
 interface Data {
   allNotifications: {
     nodes: Array<Notification>
+    __typename: string
   }
 }
 
@@ -46,82 +29,21 @@ interface SubscriptionData {
   data: {
     notificationsUpdated: {
       notification: Notification
+      event: string
     }
   }
 }
 
-export const client = (uri: string, userKey: string) =>
-  new ApolloClient({
-    cache: new InMemoryCache(),
-    link: splitLink(uri, userKey),
-    ssrForceFetchDelay: 100,
-  })
-
-const query = gql`
-  query getUserNotifications {
-    allNotifications(orderBy: CREATED_AT_DESC) {     
-      nodes {
-        id
-        createdAt
-        nodeId
-        payload
-        read
-        type
-        updatedAt
-        userId
-      }
-    }
-  }
-`
-
-const subscription = gql`
-  subscription notificationChanged($userId: String!) {
-    notificationsUpdated(userId: $userId) {
-      event
-      notification {
-        id
-        createdAt
-        nodeId
-        payload
-        read
-        type
-        updatedAt
-        userId
-      }
-    }
-  }`
-
-const markAsRead = gql`
-  mutation MarkAsRead($id: UUID!) {
-    updateNotificationById(input: {notificationPatch: {read: true}, id: $id}) {
-      notification {
-        id
-        createdAt
-        nodeId
-        payload
-        read
-        type
-        updatedAt
-        userId
-      }
-    }
-  }`
-
-const markAllAsRead = gql`
-  mutation MarkAllAsRead {
-    markAllAsRead(input: {}) {
-      notifications {
-        createdAt
-        id
-        nodeId
-        payload
-        read
-        type
-        updatedAt
-        userId
-      }
-    }
-  }`
+interface Stylesheet {
+  container: StyleInfo
+  header: StyleInfo
+  headerLink: StyleInfo
+  headerTitle: StyleInfo
+  itemsList: StyleInfo
+  itemContent: StyleInfo
+  itemTextPrimary: StyleInfo
+  itemTextSecondary: StyleInfo
+}
 
 /**
  * Notification Bell.
@@ -138,6 +60,12 @@ export class NotificationBell extends ApolloQuery {
 
   @property({ type: String })
     userKey = ''
+
+  @property({ type: Object })
+    styles = {}
+
+  @property({ type: String })
+    locale = 'en'
 
   @state()
   protected _open = false
@@ -165,47 +93,23 @@ export class NotificationBell extends ApolloQuery {
     }
   }
 
-  protected async _markAsRead(id: String) {
-    if (this.client) {
-      return await this.client.mutate({
-        mutation: markAsRead,
-        variables: { id },
-        update: (cache, { data: { updateNotificationById: { notification } } }) => {
-          const { allNotifications } = <Data> cache.readQuery({ query })
-          const result = allNotifications.nodes.map((obj: Notification) => notification.id === obj.id ? notification : obj)
-
-          cache.writeQuery({
-            query,
-            data: { allNotifications: { nodes: result } },
-          })
-        },
-      })
-    }
+  protected async _markAsRead(id: String, read: boolean) {
+    if (this.client && !read)
+      return await this.client.mutate({ mutation: markAsRead, variables: { id } })
 
     return null
   }
 
-  protected async _markAllAsRead() {
-    if (this.client) {
-      return await this.client.mutate({
-        mutation: markAllAsRead,
-        update: (cache, { data: { markAllAsRead: { notifications } } }) => {
-          const { allNotifications } = <Data> cache.readQuery({ query })
-          const result = allNotifications.nodes.map(obj => notifications.find((n: Notification) => n.id === obj.id) || obj)
-
-          cache.writeQuery({
-            query,
-            data: { allNotifications: { nodes: result } },
-          })
-        },
-      })
-    }
+  protected async _markAllAsRead(unreadCount: number) {
+    if (this.client && unreadCount > 0)
+      return await this.client.mutate({ mutation: markAllAsRead })
 
     return null
   }
 
   render() {
     const { data, loading } = this
+    const styles = this.styles as Stylesheet
     const items = data && (data as Data).allNotifications && (data as Data).allNotifications.nodes
     const unreadCount = items && (items as Array<Notification>).filter(node => !node.read).length
 
@@ -219,19 +123,27 @@ export class NotificationBell extends ApolloQuery {
         </div>
 
         <div class="popup">
-          <div class="container ${this._open ? 'open' : 'close'}">
-            <div class="header">
-              <span class="header-link" @click="${() => this._markAllAsRead()}">Mark all as read</span>
+          <div class="container ${this._open ? 'open' : 'close'}" style=${styleMap(styles.container || {})}>
+            <div class="header" style=${styleMap(styles.header || {})}>
+              <span class="header-link" style=${styleMap(styles.headerLink || {})} @click="${() => this._markAllAsRead(unreadCount as number)}">
+                Mark all as read
+              </span>
               <span class="header-title">Notifications</span>
             </div>
-            <div class="items-list">
+            <div class="items-list" style=${styleMap(styles.itemsList || {})}>
               ${!loading && items && (items as Array<Notification>).map((item, index) =>
-                html`<div class="item" @click="${() => this._markAsRead(item.id)}">
-                  ${index !== 0 ? html`<div class="divider"></div>` : ''} 
-                  ${!item.read ? html`<div class="item-unread"></div>` : ''}
-                  <div class="item-text-primary">${this._format(this._templates(item.type), item.payload)}</div>
-                  <div class="item-text-secondary">${new Date(item.updatedAt).toLocaleString()}</div>
-                </div>`,
+                html`
+                  <div class="item" style=${styleMap(styles.itemContent || {})} @click="${() => this._markAsRead(item.id, item.read)}">
+                    ${index !== 0 ? html`<div class="divider"></div>` : ''} 
+                    ${!item.read ? html`<div class="item-unread"></div>` : ''}
+                    <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || {})}>
+                      ${this._format(item.template.content, item.payload)}
+                    </div>
+                    <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || {})}>
+                      ${new Date(item.updatedAt).toLocaleString()}
+                    </div>
+                  </div>
+                `,
               )}
             </div>
           </div>
@@ -243,21 +155,24 @@ export class NotificationBell extends ApolloQuery {
   connectedCallback() {
     super.connectedCallback()
     this.client = client(this.apiUrl, this.userKey)
-    this.query = query
+    this.variables = { locale: this.locale }
+    this.query = getNotifications
   }
 
   firstUpdated() {
     this.subscribeToMore({
-      document: subscription,
-      variables: { userId: this.userKey },
+      document: notificationChanged,
+      variables: { userId: this.userKey, locale: this.locale },
       updateQuery: (prev, { subscriptionData }) => {
-        const { notification } = (subscriptionData as SubscriptionData).data.notificationsUpdated
+        const { notification, event } = (subscriptionData as SubscriptionData).data.notificationsUpdated
+        const { __typename, nodes } = (prev as Data).allNotifications
 
-        return Object.assign({}, prev, {
-          allNotifications: {
-            nodes: [notification, ...(prev as Data).allNotifications.nodes],
-          },
-        })
+        if (event === 'notification_created')
+          return Object.assign({}, prev, { allNotifications: { __typename, nodes: [notification, ...nodes] } })
+
+        // notification_updated
+        const newNotifications = nodes.map(prev => prev.id === notification.id ? notification : prev)
+        return Object.assign({}, prev, { allNotifications: { __typename, nodes: newNotifications } })
       },
     })
   }

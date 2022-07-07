@@ -82,6 +82,7 @@ export const bellStyles = css`
     height: 370px;
     position: absolute;
     overflow-y: scroll;
+    width: 100%;
   }
 
   .item {
