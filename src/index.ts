@@ -1,5 +1,6 @@
+import { nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { ApolloQuery, html, nothing } from '@apollo-elements/lit-apollo'
+import { ApolloQuery, html } from '@apollo-elements/lit-apollo'
 import { localized, msg } from '@lit/localize'
 import type { StyleInfo } from 'lit/directives/style-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
@@ -7,7 +8,7 @@ import { bellStyles } from './bellStyles'
 import { client } from './client'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
 import { formatDate, formatString } from './util/format'
-import { setLocale } from './util/localization'
+import { getLocale, setLocale } from './util/localization'
 
 interface Notification {
   id: string
@@ -102,13 +103,64 @@ export class NotificationBell extends ApolloQuery {
     return null
   }
 
-  render() {
-    const { data, loading, error } = this
+  headerTemplate(unreadCount: number) {
     const styles = this.styles as Stylesheet
     const messages = this.messages as Messages
+
+    return html`
+      <div class="header" style=${styleMap(styles.header || {})}>
+        <span class="header-link" style=${styleMap(styles.headerLink || {})}" @click="${() => this._markAllAsRead(unreadCount)}">
+          ${messages.markAllAsRead || msg('Mark all as read', { id: 'mark-all-as-read' })}
+        </span>
+        <span class="header-title">${messages.notifications || msg('Notifications', { id: 'notifications' })}</span>
+      </div>
+    `
+  }
+
+  contentTemplate(items: Array<Notification>) {
+    const { loading, error } = this
+    const styles = this.styles as Stylesheet
+    const messages = this.messages as Messages
+
+    if (loading)
+      return html`<div class="loader-container"><div class="loader"></div></div>`
+
+    if (error)
+      return html`<div class="status error">${messages.error || msg('Something went wrong...', { id: 'error' })}</div>`
+
+    if (!error && items.length === 0)
+      return html`<div class="status">${messages.empty || msg('You don’t have any notifications...', { id: 'empty' })}</div>`
+
+    return html`
+      <div class="items-list" style=${styleMap(styles.itemsList || {})}>
+        ${items.map((item, index) => this.contentItemTemplate(item, index !== 0))}
+      </div>
+    `
+  }
+
+  contentItemTemplate(item: Notification, dividerRequired: boolean) {
+    const styles = this.styles as Stylesheet
+
+    return html`
+      <div class="item" style=${styleMap(styles.itemContent || {})} @click="${() => this._markAsRead(item.id, item.read)}">
+        ${dividerRequired ? html`<div class="divider"></div>` : nothing} 
+        ${!item.read ? html`<div class="item-unread"></div>` : nothing}
+        <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || {})}>
+          ${formatString(item.template.content, item.payload)}
+        </div>
+        <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || {})}>
+          ${formatDate(item.updatedAt, getLocale())}
+        </div>
+      </div>
+    `
+  }
+
+  render() {
+    const { data } = this
+    const styles = this.styles as Stylesheet
     const nodes = data && (data as Data).allNotifications && (data as Data).allNotifications.nodes
     const items = (nodes || []) as Array<Notification>
-    const unreadCount = items.filter(node => !node.read).length
+    const unreadCount = items.filter(node => !node.read).length as number
 
     return html`
       <div>
@@ -116,45 +168,13 @@ export class NotificationBell extends ApolloQuery {
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
           </svg>
-          ${(unreadCount as number) > 0 ? html`<div class="bell-counter">${unreadCount}</div>` : ''}
+          ${unreadCount > 0 ? html`<div class="bell-counter">${unreadCount}</div>` : ''}
         </div>
 
         <div class="popup">
           <div class="container ${this._open ? 'open' : 'close'}" style=${styleMap(styles.container || {})}>
-            <div class="header" style=${styleMap(styles.header || {})}>
-              <span class="header-link" style=${styleMap(styles.headerLink || {})} @click="${() => this._markAllAsRead(unreadCount as number)}">
-                ${messages.markAllAsRead || msg('Mark all as read', { id: 'mark-all-as-read' })}
-              </span>
-              <span class="header-title">${messages.notifications || msg('Notifications', { id: 'notifications' })}</span>
-            </div>
-            ${error && !loading
-              ? html`<div class="status error">${messages.error || msg('Something went wrong...', { id: 'error' })}</div>`
-              : nothing
-            }
-            ${!error && !loading && items.length === 0
-              ? html`<div class="status">${messages.empty || msg('You don’t have any notifications...', { id: 'empty' })}</div>`
-              : nothing
-            } 
-            ${!error && !loading && items.length > 0
-              ? html`
-                <div class="items-list" style=${styleMap(styles.itemsList || {})}>
-                  ${items.map((item, index) =>
-                    html`
-                      <div class="item" style=${styleMap(styles.itemContent || {})} @click="${() => this._markAsRead(item.id, item.read)}">
-                        ${index !== 0 ? html`<div class="divider"></div>` : ''} 
-                        ${!item.read ? html`<div class="item-unread"></div>` : ''}
-                        <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || {})}>
-                          ${formatString(item.template.content, item.payload)}
-                        </div>
-                        <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || {})}>
-                          ${formatDate(item.updatedAt, this.locale)}
-                        </div>
-                      </div>
-                    `,
-                  )}
-                </div>`
-              : nothing
-            }
+            ${this.headerTemplate(unreadCount)}  
+            ${this.contentTemplate(items)}  
           </div>
         </div>
       </div>

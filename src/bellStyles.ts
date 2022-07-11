@@ -154,4 +154,86 @@ export const bellStyles = css`
     text-align: center;
     color: red;
   }
+
+  .loader-container {
+    justify-content: center;
+    display: flex;
+    padding: 2rem 5%;
+  }
+  
+  .loader {
+    position: relative;
+    left: -9999px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #0098D6;
+    color: #0098D6;
+    box-shadow: 9999px 0 0 -5px #0098D6;
+    animation: loading 1.5s infinite linear;
+    animation-delay: .25s;
+  }
+
+  .loader::before, .loader::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #0098D6;
+    color: #0098D6;
+  }
+  
+  .loader::before {
+    box-shadow: 9984px 0 0 -5px #0098D6;
+    animation: loadingBefore 1.5s infinite linear;
+    animation-delay: 0s;
+  }
+
+  .loader::after {
+    box-shadow: 10014px 0 0 -5px #0098D6;
+    animation: loadingAfter 1.5s infinite linear;
+    animation-delay: .5s;
+  }
+
+  @keyframes loadingBefore {
+    0% {
+      box-shadow: 9984px 0 0 -5px #0098D6;
+    }
+    30% {
+      box-shadow: 9984px 0 0 2px #0098D6;
+    }
+    60%,
+    100% {
+      box-shadow: 9984px 0 0 -5px #0098D6;
+    }
+  }
+  
+  @keyframes loading {
+    0% {
+      box-shadow: 9999px 0 0 -5px #0098D6;
+    }
+    30% {
+      box-shadow: 9999px 0 0 2px #0098D6;
+    }
+    60%,
+    100% {
+      box-shadow: 9999px 0 0 -5px #0098D6;
+    }
+  }
+
+  @keyframes loadingAfter {
+    0% {
+      box-shadow: 10014px 0 0 -5px #0098D6;
+    }
+    30% {
+      box-shadow: 10014px 0 0 2px #0098D6;
+    }
+    60%,
+    100% {
+      box-shadow: 10014px 0 0 -5px #0098D6;
+    }
+  }
 `
