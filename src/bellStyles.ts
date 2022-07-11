@@ -141,4 +141,17 @@ export const bellStyles = css`
   
   .divider {
     border-top: 1px solid #bbb;
-  }`
+  }  
+    
+  .status {
+    padding: 30px 10px 10px 10px;
+    text-align: center;
+    color: #444C60;
+  }
+  
+  .error {
+    padding: 30px 10px 10px 10px;
+    text-align: center;
+    color: red;
+  }
+`

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file target-language="sv-SE" source-language="en-GB" original="lit-localize-inputs" datatype="plaintext">
+<body>
+<trans-unit id="mark-all-as-read">
+  <source>Mark all as read</source>
+  <target>Markera allt som läst</target>
+</trans-unit>
+<trans-unit id="notifications">
+  <source>Notifications</source>
+  <target>Aviseringar</target>
+</trans-unit>
+<trans-unit id="error">
+  <source>Something went wrong...</source>
+  <target>Något gick fel...</target>
+</trans-unit>
+<trans-unit id="empty">
+  <source>You don’t have any notifications...</source>
+  <target>Du har inga aviseringar...</target>
+</trans-unit>
+</body>
+</file>
+</xliff>

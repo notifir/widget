@@ -1,11 +1,13 @@
 import { customElement, property, state } from 'lit/decorators.js'
-import { ApolloQuery, html } from '@apollo-elements/lit-apollo'
+import { ApolloQuery, html, nothing } from '@apollo-elements/lit-apollo'
+import { localized, msg } from '@lit/localize'
 import type { StyleInfo } from 'lit/directives/style-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { bellStyles } from './bellStyles'
 import { client } from './client'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
 import { formatDate, formatString } from './util/format'
+import { setLocale } from './util/localization'
 
 interface Notification {
   id: string
@@ -46,9 +48,17 @@ interface Stylesheet {
   itemTextSecondary: StyleInfo
 }
 
+interface Messages {
+  notifications: string
+  markAllAsRead: string
+  empty: string
+  error: string
+}
+
 /**
  * Notification Bell.
  */
+@localized()
 @customElement('notification-bell')
 export class NotificationBell extends ApolloQuery {
   static styles = bellStyles
@@ -65,8 +75,11 @@ export class NotificationBell extends ApolloQuery {
   @property({ type: Object })
     styles = {}
 
+  @property({ type: Object })
+    messages = {}
+
   @property({ type: String })
-    locale = 'en'
+    locale = 'en-GB'
 
   @state()
   protected _open = false
@@ -90,10 +103,12 @@ export class NotificationBell extends ApolloQuery {
   }
 
   render() {
-    const { data, loading } = this
+    const { data, loading, error } = this
     const styles = this.styles as Stylesheet
-    const items = data && (data as Data).allNotifications && (data as Data).allNotifications.nodes
-    const unreadCount = items && (items as Array<Notification>).filter(node => !node.read).length
+    const messages = this.messages as Messages
+    const nodes = data && (data as Data).allNotifications && (data as Data).allNotifications.nodes
+    const items = (nodes || []) as Array<Notification>
+    const unreadCount = items.filter(node => !node.read).length
 
     return html`
       <div>
@@ -108,26 +123,38 @@ export class NotificationBell extends ApolloQuery {
           <div class="container ${this._open ? 'open' : 'close'}" style=${styleMap(styles.container || {})}>
             <div class="header" style=${styleMap(styles.header || {})}>
               <span class="header-link" style=${styleMap(styles.headerLink || {})} @click="${() => this._markAllAsRead(unreadCount as number)}">
-                Mark all as read
+                ${messages.markAllAsRead || msg('Mark all as read', { id: 'mark-all-as-read' })}
               </span>
-              <span class="header-title">Notifications</span>
+              <span class="header-title">${messages.notifications || msg('Notifications', { id: 'notifications' })}</span>
             </div>
-            <div class="items-list" style=${styleMap(styles.itemsList || {})}>
-              ${!loading && items && (items as Array<Notification>).map((item, index) =>
-                html`
-                  <div class="item" style=${styleMap(styles.itemContent || {})} @click="${() => this._markAsRead(item.id, item.read)}">
-                    ${index !== 0 ? html`<div class="divider"></div>` : ''} 
-                    ${!item.read ? html`<div class="item-unread"></div>` : ''}
-                    <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || {})}>
-                      ${formatString(item.template.content, item.payload)}
-                    </div>
-                    <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || {})}>
-                      ${formatDate(item.updatedAt, this.locale)}
-                    </div>
-                  </div>
-                `,
-              )}
-            </div>
+            ${error && !loading
+              ? html`<div class="status error">${messages.error || msg('Something went wrong...', { id: 'error' })}</div>`
+              : nothing
+            }
+            ${!error && !loading && items.length === 0
+              ? html`<div class="status">${messages.empty || msg('You don’t have any notifications...', { id: 'empty' })}</div>`
+              : nothing
+            } 
+            ${!error && !loading && items.length > 0
+              ? html`
+                <div class="items-list" style=${styleMap(styles.itemsList || {})}>
+                  ${items.map((item, index) =>
+                    html`
+                      <div class="item" style=${styleMap(styles.itemContent || {})} @click="${() => this._markAsRead(item.id, item.read)}">
+                        ${index !== 0 ? html`<div class="divider"></div>` : ''} 
+                        ${!item.read ? html`<div class="item-unread"></div>` : ''}
+                        <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || {})}>
+                          ${formatString(item.template.content, item.payload)}
+                        </div>
+                        <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || {})}>
+                          ${formatDate(item.updatedAt, this.locale)}
+                        </div>
+                      </div>
+                    `,
+                  )}
+                </div>`
+              : nothing
+            }
           </div>
         </div>
       </div>
@@ -139,6 +166,7 @@ export class NotificationBell extends ApolloQuery {
     this.client = client(this.apiUrl, this.userKey)
     this.variables = { locale: this.locale }
     this.query = getNotifications
+    setLocale(this.locale)
   }
 
   firstUpdated() {
