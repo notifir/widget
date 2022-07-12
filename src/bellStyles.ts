@@ -8,11 +8,6 @@ export const bellStyles = css`
     height: 1.5rem;
   }
 
-  .bell svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-
   .bell-counter { 
     position: absolute;
     top: 0%;

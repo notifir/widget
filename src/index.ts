@@ -110,8 +110,8 @@ export class NotificationBell extends ApolloQuery {
     const messages = this.messages as Messages
 
     return html`
-      <div class="header" style=${styleMap(styles.header || {})}>
-        <span class="header-link" style=${styleMap(styles.headerLink || {})}" @click="${() => this._markAllAsRead(unreadCount)}">
+      <div class="header" style=${styleMap(styles.header || nothing)}>
+        <span class="header-link" style=${styleMap(styles.headerLink || nothing)} @click="${() => this._markAllAsRead(unreadCount)}">
           ${messages.markAllAsRead || msg('Mark all as read', { id: 'mark-all-as-read' })}
         </span>
         <span class="header-title">${messages.notifications || msg('Notifications', { id: 'notifications' })}</span>
@@ -134,7 +134,7 @@ export class NotificationBell extends ApolloQuery {
       return html`<div class="status">${messages.empty || msg('You don’t have any notifications...', { id: 'empty' })}</div>`
 
     return html`
-      <div class="items-list" style=${styleMap(styles.itemsList || {})}>
+      <div class="items-list" style=${styleMap(styles.itemsList || nothing)}>
         ${items.map((item, index) => this.contentItemTemplate(item, index !== 0))}
       </div>
     `
@@ -144,13 +144,13 @@ export class NotificationBell extends ApolloQuery {
     const styles = this.styles as Stylesheet
 
     return html`
-      <div class="item" style=${styleMap(styles.itemContent || {})} @click="${() => this._markAsRead(item.id, item.read)}">
+      <div class="item" style=${styleMap(styles.itemContent || nothing)} @click="${() => this._markAsRead(item.id, item.read)}">
         ${dividerRequired ? html`<div class="divider"></div>` : nothing} 
         ${!item.read ? html`<div class="item-unread"></div>` : nothing}
-        <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || {})}>
+        <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || nothing)}>
           ${formatString(item.template.content, item.payload)}
         </div>
-        <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || {})}>
+        <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || nothing)}>
           ${formatDate(item.updatedAt, getLocale())}
         </div>
       </div>
@@ -166,18 +166,18 @@ export class NotificationBell extends ApolloQuery {
 
     return html`
       <div>
-        <div class="bell" style=${styleMap(styles.bell || {})} @click="${this._handleBellClick}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+        <div class="bell" style=${styleMap(styles.bell || nothing)} @click="${this._handleBellClick}">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
           </svg>
           ${unreadCount > 0
-            ? html`<div class="bell-counter" style=${styleMap(styles.bellCounter || {})}>${unreadCount}</div>`
+            ? html`<div class="bell-counter" style=${styleMap(styles.bellCounter || nothing)}>${unreadCount}</div>`
             : nothing
           }
         </div>
 
         <div class="popup">
-          <div class="container ${this._open ? 'open' : 'close'}" style=${styleMap(styles.container || {})}>
+          <div class="container ${this._open ? 'open' : 'close'}" style=${styleMap(styles.container || nothing)}>
             ${this.headerTemplate(unreadCount)}  
             ${this.contentTemplate(items)}  
           </div>
