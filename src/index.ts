@@ -87,7 +87,7 @@ export class NotificationBell extends ApolloQuery {
   @state()
   protected _open = false
 
-  private _handleBellClick() {
+  private _changeWidgetVisibility() {
     this._open = !this._open
   }
 
@@ -166,7 +166,7 @@ export class NotificationBell extends ApolloQuery {
 
     return html`
       <div>
-        <div class="bell" style=${styleMap(styles.bell || nothing)} @click="${this._handleBellClick}">
+        <div class="bell" style=${styleMap(styles.bell || nothing)} @click="${this._changeWidgetVisibility}">
           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
           </svg>
@@ -184,6 +184,14 @@ export class NotificationBell extends ApolloQuery {
         </div>
       </div>
     `
+  }
+
+  constructor() {
+    super()
+    window.addEventListener('click', (event) => {
+      if (this._open && event.target !== this)
+        this._changeWidgetVisibility()
+    })
   }
 
   connectedCallback() {
