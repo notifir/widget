@@ -9,14 +9,16 @@ import { client } from './client'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
 import { formatDate, formatString } from './util/format'
 import { getLocale, setLocale } from './util/localization'
+import { mockClient } from './mock'
 
-interface Notification {
+export interface Notification {
   id: string
   payload: string
   type: string
   createdAt: string
   updatedAt: string
   read: boolean
+  userId: string
   template: {
     content: string
   }
@@ -196,7 +198,7 @@ export class NotificationBell extends ApolloQuery {
 
   connectedCallback() {
     super.connectedCallback()
-    this.client = client(this.apiUrl, this.userKey)
+    this.client = this.mock ? mockClient(this.locale) : client(this.apiUrl, this.userKey)
     this.variables = { locale: this.locale }
     this.query = getNotifications
     setLocale(this.locale)

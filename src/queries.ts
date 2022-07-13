@@ -6,7 +6,6 @@ export const getNotifications = gql`
       nodes {
         id
         createdAt
-        nodeId
         payload
         read
         type
@@ -27,7 +26,6 @@ export const notificationChanged = gql`
       notification {
         id
         createdAt
-        nodeId
         payload
         read
         type
