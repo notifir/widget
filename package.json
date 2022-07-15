@@ -38,7 +38,8 @@
     "@apollo/client": "^3.6.6",
     "@lit/localize": "^0.11.3",
     "graphql-ws": "^5.8.2",
-    "lit": "^2.2.3"
+    "lit": "^2.2.3",
+    "mock-apollo-client": "^1.2.0"
   },
   "devDependencies": {
     "@antfu/eslint-config-ts": "^0.21.1",
@@ -50,14 +51,13 @@
     "@lit/localize-tools": "^0.6.4",
     "@types/node": "^17.0.30",
     "@types/ws": "^8.5.3",
+    "@types/zen-observable": "^0.8.3",
     "eslint": "^8.14.0",
     "esno": "^0.14.1",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.12.6",
     "husky": "^8.0.1",
     "lint-staged": "^12.4.3",
-    "mock-apollo-client": "^1.2.0",
-    "subscriptions-transport-ws": "0.11.0",
     "typescript": "^4.6.4",
     "vite": "^2.9.6"
   },

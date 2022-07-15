@@ -1,14 +1,20 @@
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client/core'
-import { WebSocketLink } from '@apollo/client/link/ws'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
 import { getMainDefinition } from '@apollo/client/utilities'
 
 const createWsLink = (uri: string, userKey: string) => {
   const url = new URL(uri)
   const protocol = url.hostname.includes('localhost') ? 'ws' : 'wss'
-  const options = { reconnect: true, connectionParams: { 'authorization-key': userKey } }
   const wsUri = `${protocol}://${url.host}${url.pathname}`
 
-  return new WebSocketLink({ uri: wsUri, options })
+  return new GraphQLWsLink(
+    createClient({
+      url: wsUri,
+      connectionParams: { 'authorization-key': userKey },
+      lazy: true,
+    }),
+  )
 }
 
 const createHttpLink = (uri: string, userKey: string) =>
