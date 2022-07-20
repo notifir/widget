@@ -3,33 +3,39 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { createClient } from 'graphql-ws'
 import { getMainDefinition } from '@apollo/client/utilities'
 
-const createWsLink = (uri: string, userKey: string) => {
+const createWsLink = (uri: string, apiKey: string, userId: string, userHmac: string) => {
   const url = new URL(uri)
   const protocol = url.hostname.includes('localhost') ? 'ws' : 'wss'
   const wsUri = `${protocol}://${url.host}${url.pathname}`
 
+  const connectionParams = userHmac
+    ? { 'x-api-key': apiKey, 'x-user-id': userId, 'x-user-hmac': userHmac } // HMAC authentication
+    : { 'x-api-key': apiKey, 'x-user-id': userId } // Plain authentication
+
   return new GraphQLWsLink(
     createClient({
       url: wsUri,
-      connectionParams: { 'authorization-key': userKey },
+      connectionParams,
       lazy: true,
     }),
   )
 }
 
-const createHttpLink = (uri: string, userKey: string) =>
-  new HttpLink({ uri, headers: { 'authorization-key': userKey } })
+const createHttpLink = (uri: string, apiKey: string, userId: string, userHmac: string) =>
+  userHmac
+    ? new HttpLink({ uri, headers: { 'x-api-key': apiKey, 'x-user-id': userId, 'x-user-hmac': userHmac } }) // HMAC authentication
+    : new HttpLink({ uri, headers: { 'x-api-key': apiKey, 'x-user-id': userId } }) // Plain authentication
 
-const splitLink = (uri: string, userKey: string) => ApolloLink.split(
+const splitLink = (uri: string, apiKey: string, userId: string, userHmac: string) => ApolloLink.split(
   ({ query }) => {
     const definition = getMainDefinition(query)
     return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
   },
-  createWsLink(uri, userKey),
-  createHttpLink(uri, userKey),
+  createWsLink(uri, apiKey, userId, userHmac),
+  createHttpLink(uri, apiKey, userId, userHmac),
 )
 
-export const client = (uri: string, userKey: string) =>
+export const client = (uri: string, apiKey: string, userId: string, userHmac: string) =>
   new ApolloClient({
     cache: new InMemoryCache({
       typePolicies: {
@@ -38,6 +44,6 @@ export const client = (uri: string, userKey: string) =>
         },
       },
     }),
-    link: splitLink(uri, userKey),
+    link: splitLink(uri, apiKey, userId, userHmac),
     ssrForceFetchDelay: 100,
   })

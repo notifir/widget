@@ -11,7 +11,7 @@ The final product is an ES module, and it can be used alone.
 
 > Anywhere like Vanilla JS / Vue / React / Angular / Svelte ...
 
-[Demo](https://titenkov.github.io/wc-notification-bell/)
+[Demo](https://notifir.github.io/wc-notification-bell/)
 
 ## Usage
 

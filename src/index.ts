@@ -75,7 +75,13 @@ export class NotificationBell extends ApolloQuery {
     apiUrl = ''
 
   @property({ type: String })
-    userKey = ''
+    apiKey = ''
+
+  @property({ type: String })
+    userId = ''
+
+  @property({ type: String })
+    userHmac = ''
 
   @property({ type: Object })
     styles = {}
@@ -198,7 +204,7 @@ export class NotificationBell extends ApolloQuery {
 
   connectedCallback() {
     super.connectedCallback()
-    this.client = this.mock ? mockClient(this.locale) : client(this.apiUrl, this.userKey)
+    this.client = this.mock ? mockClient(this.locale) : client(this.apiUrl, this.apiKey, this.userId, this.userHmac)
     this.variables = { locale: this.locale }
     this.query = getNotifications
     setLocale(this.locale)
@@ -207,7 +213,7 @@ export class NotificationBell extends ApolloQuery {
   firstUpdated() {
     this.subscribeToMore({
       document: notificationChanged,
-      variables: { userId: this.userKey, locale: this.locale },
+      variables: { apiKey: this.apiKey, userId: this.userId, userHmac: this.userHmac, locale: this.locale },
       updateQuery: (prev, { subscriptionData }) => {
         const { notification, event } = (subscriptionData as SubscriptionData).data.notificationsUpdated
         const { __typename, nodes } = (prev as Data).allNotifications
