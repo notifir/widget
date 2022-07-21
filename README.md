@@ -11,7 +11,7 @@ The final product is an ES module, and it can be used alone.
 
 > Anywhere like Vanilla JS / Vue / React / Angular / Svelte ...
 
-[Demo](https://notifir.github.io/wc-notification-bell/)
+[Demo](https://notifir.github.io/widget/)
 
 ## Usage
 
@@ -42,5 +42,5 @@ import 'wc-notification-bell'
 
 ```html
 <!-- index.html -->
-<notification-bell mock="true"></notification-bell>
+<notification-bell mock></notification-bell>
 ```

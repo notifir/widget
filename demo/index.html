@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="ltr" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -38,24 +38,6 @@
         background-color: var(--primary-bg-color);
         color: var(--primary-fg-color);
         overflow-x: hidden;
-      }
-
-      wc-menu-button.big-icon {
-        width: 60px;
-      }
-
-      .demo-color {
-        --wc-menu-button-color: orange;
-      }
-
-      wc-menu-button.demo-size {
-        width: 67px;
-      }
-
-      @media (hover: hover) {
-        wc-menu-button.demo-hover-opacity:hover {
-          opacity: 1;
-        }
       }
 
       body {
@@ -101,6 +83,7 @@
       }
 
       .hero-demo {
+        text-align: center;
         padding-top: 40px;
       }
 
@@ -208,6 +191,7 @@
       .demo {
         padding: 37px 0;
         width: 100%;
+        text-align: center;
       }
 
       .demo .wc-container {
@@ -323,6 +307,13 @@
             <img src="https://camo.githubusercontent.com/60207c748dde39c6a0ff6d32ae083e22ed3fa06b4e3773e60e5d77cecebf7b71/68747470733a2f2f696d672e736869656c64732e696f2f62756e646c6570686f6269612f6d696e7a69702f77632d6e6f74696669636174696f6e2d62656c6c" alt="npm bundle size" data-canonical-src="https://img.shields.io/bundlephobia/minzip/wc-notification-bell" style="max-width:100%;">
           </a>
         </p>
+      </section>
+
+      <section class="demo">
+        <h2>Demo</h2>
+        <div class="wc-container">
+          <notification-bell mock></notification-bell>
+        </div>
       </section>
 
       <section class="hero-cta">
