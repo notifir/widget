@@ -46,7 +46,7 @@ export const bellStyles = css`
     font-family: Verdana, geneva, sans-serif;
     right: 0;
     margin-right: -10px;
-    justify-content: initial;
+    text-align: initial;
   }
 
   .close { 
