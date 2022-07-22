@@ -43,6 +43,7 @@ interface SubscriptionData {
 interface Stylesheet {
   bell: StyleInfo
   bellCounter: StyleInfo
+  popup: StyleInfo
   container: StyleInfo
   header: StyleInfo
   headerLink: StyleInfo
@@ -184,7 +185,7 @@ export class NotificationBell extends ApolloQuery {
           }
         </div>
 
-        <div class="popup">
+        <div class="popup" style=${styleMap(styles.popup || nothing)}>
           <div class="container ${this._open ? 'open' : 'close'}" style=${styleMap(styles.container || nothing)}>
             ${this.headerTemplate(unreadCount)}  
             ${this.contentTemplate(items)}  
