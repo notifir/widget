@@ -8,7 +8,7 @@ export const bellStyles = css`
     height: 1.5rem;
   }
 
-  .bell-counter { 
+  .bell-counter {
     position: absolute;
     top: 0%;
     left: 60%;
@@ -25,7 +25,7 @@ export const bellStyles = css`
   .bell-counter:empty {
     display: none;
   }
-  
+
   .popup {
     position: absolute;
     z-index: 1000;
@@ -35,45 +35,46 @@ export const bellStyles = css`
     width: 400px;
     height: 400px;
     font-size: 1rem;
-    position: absolute;     
+    position: absolute;
     padding-bottom: 20px;
     border-radius: 1%;
-    border: 1px solid rgb(0,0,0,0.1);        
+    border: 1px solid rgb(0,0,0,0.1);
     background-color: #F6FAFD;
     font-size: 14px;
     line-height: 17px;
     font-weight: 300;
     font-family: Verdana, geneva, sans-serif;
     right: 0;
-    margin-right: -10px;
     text-align: initial;
+    margin-right: -12px;
+    margin-top: 5px;
   }
 
-  .close { 
-    display: none; 
+  .close {
+    display: none;
   }
 
-  .open { 
-    display: block; 
+  .open {
+    display: block;
   }
 
-  .header {  
+  .header {
     padding: 17px 17px 13px;
     border-bottom: 1px solid #bbb;
     margin: 0px 10px;
   }
-  
+
   .header-title {
     color: #444C60;
     font-weight: bold;
   }
-  
+
   .header-link {
     color: rgb(1, 73, 149);
     float: right;
     cursor: pointer;
   }
- 
+
   .items-list {
     height: 370px;
     position: absolute;
@@ -86,7 +87,7 @@ export const bellStyles = css`
     position: relative;
     cursor: pointer;
   }
-    
+
   .item:hover {
     background: #f1f4f6;
   }
@@ -98,53 +99,53 @@ export const bellStyles = css`
     vertical-align: top;
     padding: 12px 20px 0px 8px;
   }
-  
+
   .item-text-secondary {
     padding: 5px 10px 0px 8px;
     color: #757C85;
     font-size: 13px;
   }
-     
+
   @keyframes pulsing {
     0% {
       transform: scale(0.95);
       box-shadow: 0 0 0 0 rgba(0, 152, 214, 0.7);
     }
-  
+
     70% {
       transform: scale(1);
       box-shadow: 0 0 0 7px rgba(0, 152, 214, 0);
     }
-  
+
     100% {
       transform: scale(0.95);
       box-shadow: 0 0 0 0 rgba(0, 152, 214, 0);
     }
   }
-  
-  .item-unread {   
+
+  .item-unread {
     position: absolute;
     right: 20px;
     top: 50%;
     width: 5px;
     height: 5px;
-    border: 1px solid #0098D6;      
+    border: 1px solid #0098D6;
     border-radius: 50%;
     transform: scale(1);
     animation: pulsing 2s infinite;
     background: rgba(0, 152, 214, 1);
   }
-  
+
   .divider {
     border-top: 1px solid #bbb;
-  }  
-    
+  }
+
   .status {
     padding: 30px 10px 10px 10px;
     text-align: center;
     color: #444C60;
   }
-  
+
   .error {
     padding: 30px 10px 10px 10px;
     text-align: center;
@@ -156,7 +157,7 @@ export const bellStyles = css`
     display: flex;
     padding: 2rem 5%;
   }
-  
+
   .loader {
     position: relative;
     left: -9999px;
@@ -181,7 +182,7 @@ export const bellStyles = css`
     background-color: #0098D6;
     color: #0098D6;
   }
-  
+
   .loader::before {
     box-shadow: 9984px 0 0 -5px #0098D6;
     animation: loadingBefore 1.5s infinite linear;
@@ -206,7 +207,7 @@ export const bellStyles = css`
       box-shadow: 9984px 0 0 -5px #0098D6;
     }
   }
-  
+
   @keyframes loading {
     0% {
       box-shadow: 9999px 0 0 -5px #0098D6;

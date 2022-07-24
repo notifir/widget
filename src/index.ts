@@ -154,7 +154,7 @@ export class NotificationBell extends ApolloQuery {
 
     return html`
       <div class="item" style=${styleMap(styles.itemContent || nothing)} @click="${() => this._markAsRead(item.id, item.read)}">
-        ${dividerRequired ? html`<div class="divider"></div>` : nothing} 
+        ${dividerRequired ? html`<div class="divider"></div>` : nothing}
         ${!item.read ? html`<div class="item-unread"></div>` : nothing}
         <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || nothing)}>
           ${formatString(item.template.content, item.payload)}
@@ -187,8 +187,8 @@ export class NotificationBell extends ApolloQuery {
 
         <div class="popup" style=${styleMap(styles.popup || nothing)}>
           <div class="container ${this._open ? 'open' : 'close'}" style=${styleMap(styles.container || nothing)}>
-            ${this.headerTemplate(unreadCount)}  
-            ${this.contentTemplate(items)}  
+            ${this.headerTemplate(unreadCount)}
+            ${this.contentTemplate(items)}
           </div>
         </div>
       </div>
