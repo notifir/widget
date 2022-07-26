@@ -82,6 +82,13 @@ export const bellStyles = css`
     width: 100%;
   }
 
+  .items-list .item:not(:first-child):before {
+    border-top: 1px solid #bbb;
+    content: '';
+    display: block;
+    position: relative;
+  }
+
   .item {
     padding: 0px 18px 12px 18px;
     position: relative;
@@ -98,6 +105,7 @@ export const bellStyles = css`
     color: #444C60;
     vertical-align: top;
     padding: 12px 20px 0px 8px;
+    min-height: 20px;
   }
 
   .item-text-secondary {
@@ -134,10 +142,6 @@ export const bellStyles = css`
     transform: scale(1);
     animation: pulsing 2s infinite;
     background: rgba(0, 152, 214, 1);
-  }
-
-  .divider {
-    border-top: 1px solid #bbb;
   }
 
   .status {

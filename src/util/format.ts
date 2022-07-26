@@ -9,7 +9,7 @@ export function formatString(fmt: string, obj: any): string {
 
   keyNames.forEach((key: any) => {
     const toReplace = new RegExp(`{${key}}`, 'g')
-    res = res.replace(toReplace, values[key])
+    res = res.replace(toReplace, values[key] || '')
   })
 
   return res

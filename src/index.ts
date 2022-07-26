@@ -144,17 +144,16 @@ export class NotificationBell extends ApolloQuery {
 
     return html`
       <div class="items-list" style=${styleMap(styles.itemsList || nothing)}>
-        ${items.map((item, index) => this.contentItemTemplate(item, index !== 0))}
+        ${items.map(item => item.template ? this.itemContentTemplate(item) : nothing)}
       </div>
     `
   }
 
-  contentItemTemplate(item: Notification, dividerRequired: boolean) {
+  itemContentTemplate(item: Notification) {
     const styles = this.styles as Stylesheet
 
     return html`
       <div class="item" style=${styleMap(styles.itemContent || nothing)} @click="${() => this._markAsRead(item.id, item.read)}">
-        ${dividerRequired ? html`<div class="divider"></div>` : nothing}
         ${!item.read ? html`<div class="item-unread"></div>` : nothing}
         <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || nothing)}>
           ${formatString(item.template.content, item.payload)}
