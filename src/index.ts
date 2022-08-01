@@ -4,10 +4,12 @@ import { ApolloQuery, html } from '@apollo-elements/lit-apollo'
 import { localized, msg } from '@lit/localize'
 import type { StyleInfo } from 'lit/directives/style-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js'
+import { renderString } from 'nunjucks'
 import { bellStyles } from './bellStyles'
 import { client } from './client'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
-import { formatDate, formatString } from './util/format'
+import { formatDate } from './util/format'
 import { getLocale, setLocale } from './util/localization'
 import { mockClient } from './mock'
 
@@ -22,6 +24,7 @@ export interface Notification {
   template: {
     content: string
   }
+  actionUrl: string
 }
 
 interface Data {
@@ -100,11 +103,12 @@ export class NotificationBell extends ApolloQuery {
     this._open = !this._open
   }
 
-  protected async _markAsRead(id: String, read: boolean) {
+  protected async _handleItemClick(id: String, read: boolean, actionUrl: string) {
     if (this.client && !read)
-      return await this.client.mutate({ mutation: markAsRead, variables: { id } })
+      await this.client.mutate({ mutation: markAsRead, variables: { id } })
 
-    return null
+    if (actionUrl)
+      window.open(actionUrl, '_self')
   }
 
   protected async _markAllAsRead(unreadCount: number) {
@@ -153,10 +157,10 @@ export class NotificationBell extends ApolloQuery {
     const styles = this.styles as Stylesheet
 
     return html`
-      <div class="item" style=${styleMap(styles.itemContent || nothing)} @click="${() => this._markAsRead(item.id, item.read)}">
+      <div class="item" style=${styleMap(styles.itemContent || nothing)} @click="${() => this._handleItemClick(item.id, item.read, item.actionUrl)}">
         ${!item.read ? html`<div class="item-unread"></div>` : nothing}
         <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || nothing)}>
-          ${formatString(item.template.content, item.payload)}
+          ${html`${unsafeHTML(renderString(item.template.content, JSON.parse(item.payload)))}`}  
         </div>
         <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || nothing)}>
           ${formatDate(item.updatedAt, getLocale())}

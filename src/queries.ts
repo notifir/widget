@@ -11,6 +11,7 @@ export const getNotifications = gql`
         type
         updatedAt
         userId
+        actionUrl  
         template(locale: $locale) {
           content
         }
@@ -31,6 +32,7 @@ export const notificationChanged = gql`
         type
         updatedAt
         userId
+        actionUrl  
         template(locale: $locale) {
           content
         }

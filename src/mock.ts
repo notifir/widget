@@ -38,6 +38,7 @@ const generateNotifications = (n: number, locale: string) => {
       createdAt: date.toString(),
       updatedAt: date.toString(),
       template: { content: template ? template.content : '' },
+      actionUrl: 'https://notifir.github.io/widget',
     })
   }
 
