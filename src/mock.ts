@@ -7,12 +7,12 @@ import type { Notification } from './index'
 const userId = 'beast~mailinator.com@marvel-x-men'
 const types = ['folder-created', 'file-copied']
 const templates = [
-  { type: 'folder-created', locale: 'en-GB', content: 'The folder {folder} was created by {user}.' },
-  { type: 'folder-created', locale: 'nb-NO', content: 'Oppføringen {folder} ble opprettet av {user}.' },
-  { type: 'folder-created', locale: 'sv-SE', content: 'Posten {folder} har skapats av {user}.' },
-  { type: 'file-copied', locale: 'en-GB', content: 'File {file} copied from {folder} by {user}.' },
-  { type: 'file-copied', locale: 'nb-NO', content: 'Filen {file} ble kopiert fra {folder} av {user}.' },
-  { type: 'file-copied', locale: 'sv-SE', content: 'Filen {file} kopierades från {folder} av {user}.' },
+  { type: 'folder-created', locale: 'en-GB', content: 'The folder {{ folder }} was created by {{ user }}.' },
+  { type: 'folder-created', locale: 'nb-NO', content: 'Oppføringen {{ folder }} ble opprettet av {user}.' },
+  { type: 'folder-created', locale: 'sv-SE', content: 'Posten {{ folder }} har skapats av {{ user }}.' },
+  { type: 'file-copied', locale: 'en-GB', content: 'File {{ file }} copied from {{ folder }} by {{ user }}.' },
+  { type: 'file-copied', locale: 'nb-NO', content: 'Filen {{ file }} ble kopiert fra {{ folder }} av {{ user }}.' },
+  { type: 'file-copied', locale: 'sv-SE', content: 'Filen {{ file }} kopierades från {{ folder }} av {{ user }}.' },
 ]
 let notifications: Notification[] = []
 
