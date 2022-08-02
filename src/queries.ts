@@ -6,15 +6,12 @@ export const getNotifications = gql`
       nodes {
         id
         createdAt
-        payload
         read
         type
         updatedAt
         userId
-        actionUrl  
-        template(locale: $locale) {
-          content
-        }
+        actionUrl
+        content(locale: $locale)
       }
     }  
   }
@@ -27,15 +24,12 @@ export const notificationChanged = gql`
       notification {
         id
         createdAt
-        payload
         read
         type
         updatedAt
         userId
-        actionUrl  
-        template(locale: $locale) {
-          content
-        }
+        actionUrl
+        content(locale: $locale)
       }
     }
   }

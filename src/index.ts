@@ -5,7 +5,6 @@ import { localized, msg } from '@lit/localize'
 import type { StyleInfo } from 'lit/directives/style-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
-import { renderString } from 'nunjucks'
 import { bellStyles } from './bellStyles'
 import { client } from './client'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
@@ -15,15 +14,12 @@ import { mockClient } from './mock'
 
 export interface Notification {
   id: string
-  payload: string
   type: string
   createdAt: string
   updatedAt: string
   read: boolean
   userId: string
-  template: {
-    content: string
-  }
+  content: string
   actionUrl: string
 }
 
@@ -148,7 +144,7 @@ export class NotificationBell extends ApolloQuery {
 
     return html`
       <div class="items-list" style=${styleMap(styles.itemsList || nothing)}>
-        ${items.map(item => item.template ? this.itemContentTemplate(item) : nothing)}
+        ${items.map(item => item.content ? this.itemContentTemplate(item) : nothing)}
       </div>
     `
   }
@@ -160,7 +156,7 @@ export class NotificationBell extends ApolloQuery {
       <div class="item" style=${styleMap(styles.itemContent || nothing)} @click="${() => this._handleItemClick(item.id, item.read, item.actionUrl)}">
         ${!item.read ? html`<div class="item-unread"></div>` : nothing}
         <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || nothing)}>
-          ${html`${unsafeHTML(renderString(item.template.content, JSON.parse(item.payload)))}`}  
+          ${html`${unsafeHTML(item.content)}`}  
         </div>
         <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || nothing)}>
           ${formatDate(item.updatedAt, getLocale())}

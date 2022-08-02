@@ -4,15 +4,21 @@ import { faker } from '@faker-js/faker'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
 import type { Notification } from './index'
 
+export interface Payload {
+  folder?: string
+  file?: string
+  user?: string
+}
+
 const userId = 'beast~mailinator.com@marvel-x-men'
 const types = ['folder-created', 'file-copied']
 const templates = [
-  { type: 'folder-created', locale: 'en-GB', content: 'The folder {{ folder }} was created by {{ user }}.' },
-  { type: 'folder-created', locale: 'nb-NO', content: 'Oppføringen {{ folder }} ble opprettet av {user}.' },
-  { type: 'folder-created', locale: 'sv-SE', content: 'Posten {{ folder }} har skapats av {{ user }}.' },
-  { type: 'file-copied', locale: 'en-GB', content: 'File {{ file }} copied from {{ folder }} by {{ user }}.' },
-  { type: 'file-copied', locale: 'nb-NO', content: 'Filen {{ file }} ble kopiert fra {{ folder }} av {{ user }}.' },
-  { type: 'file-copied', locale: 'sv-SE', content: 'Filen {{ file }} kopierades från {{ folder }} av {{ user }}.' },
+  { type: 'folder-created', locale: 'en-GB', content: (payload: Payload) => `The folder ${payload.folder} was created by ${payload.user}.` },
+  { type: 'folder-created', locale: 'nb-NO', content: (payload: Payload) => `Oppføringen ${payload.folder} ble opprettet av ${payload.user}.` },
+  { type: 'folder-created', locale: 'sv-SE', content: (payload: Payload) => `Posten ${payload.folder} har skapats av ${payload.user}.` },
+  { type: 'file-copied', locale: 'en-GB', content: (payload: Payload) => `File ${payload.file} copied from ${payload.folder} by ${payload.user}.` },
+  { type: 'file-copied', locale: 'nb-NO', content: (payload: Payload) => `Filen ${payload.file} ble kopiert fra ${payload.folder} av ${payload.user}.` },
+  { type: 'file-copied', locale: 'sv-SE', content: (payload: Payload) => `Filen ${payload.file} kopierades från ${payload.folder} av ${payload.user}.` },
 ]
 let notifications: Notification[] = []
 
@@ -22,7 +28,7 @@ const generateNotifications = (n: number, locale: string) => {
     const date = new Date(new Date().getTime() - (n - (n - 1 - i)) * 1.1 * 60000)
     const type = faker.helpers.arrayElement(types)
     const template = templates.find(t => t.locale === locale && t.type === type)
-    let payload = {}
+    let payload: Payload = {}
     if (type === 'file-copied')
       payload = { file: faker.system.commonFileName(), folder: faker.random.word(), user: faker.name.findName() }
 
@@ -32,12 +38,11 @@ const generateNotifications = (n: number, locale: string) => {
     notifications.push({
       id: faker.datatype.uuid(),
       type,
-      payload: JSON.stringify(payload),
       userId,
       read: false,
       createdAt: date.toString(),
       updatedAt: date.toString(),
-      template: { content: template ? template.content : '' },
+      content: template ? template.content(payload) : '',
       actionUrl: 'https://notifir.github.io/widget',
     })
   }
