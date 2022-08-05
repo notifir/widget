@@ -11,11 +11,13 @@ export const bellStyles = css`
   .bell-counter {
     position: absolute;
     top: 0%;
-    left: 60%;
+    left: 55%;
     font-size: 0.55rem;
-    border-radius: 50%;
-    width: 0.8rem;
+    border-radius: 45%;
     height: 0.8rem;
+    min-width: 0.7rem;
+    padding-left: 1.5px;
+    padding-right: 1.5px;
     background-color: red;
     color: #FFFFFF;
     text-align: center;
