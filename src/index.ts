@@ -159,7 +159,7 @@ export class NotificationBell extends ApolloQuery {
           ${html`${unsafeHTML(item.content)}`}  
         </div>
         <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || nothing)}>
-          ${formatDate(item.updatedAt, getLocale())}
+          ${formatDate(item.createdAt, getLocale())}
         </div>
       </div>
     `

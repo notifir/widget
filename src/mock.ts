@@ -1,6 +1,6 @@
 import type { IMockSubscription } from 'mock-apollo-client'
 import { createMockClient, createMockSubscription } from 'mock-apollo-client'
-import { faker } from '@faker-js/faker'
+import { rand, randBetweenDate, randFileName, randFullName, randJobArea, randUuid } from '@ngneat/falso'
 import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from './queries'
 import type { Notification } from './index'
 
@@ -24,19 +24,20 @@ let notifications: Notification[] = []
 
 const generateNotifications = (n: number, locale: string) => {
   const notifications: Notification[] = []
+  const currentDate = new Date()
   for (let i = 0; i < n; i++) {
-    const date = new Date(new Date().getTime() - (n - (n - 1 - i)) * 1.1 * 60000)
-    const type = faker.helpers.arrayElement(types)
+    const type = rand(types)
     const template = templates.find(t => t.locale === locale && t.type === type)
+    const date = randBetweenDate({ from: new Date('08/04/2022'), to: currentDate })
     let payload: Payload = {}
     if (type === 'file-copied')
-      payload = { file: faker.system.commonFileName(), folder: faker.random.word(), user: faker.name.findName() }
+      payload = { file: randFileName(), folder: randJobArea(), user: randFullName() }
 
     if (type === 'folder-created')
-      payload = { folder: faker.random.word(), user: faker.name.findName() }
+      payload = { folder: randJobArea(), user: randFullName() }
 
     notifications.push({
-      id: faker.datatype.uuid(),
+      id: randUuid(),
       type,
       userId,
       read: false,
@@ -47,7 +48,9 @@ const generateNotifications = (n: number, locale: string) => {
     })
   }
 
-  return notifications
+  return notifications.sort((a, b) =>
+    new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf(),
+  )
 }
 
 const getAllNotifications = () => Promise.resolve({ data: { allNotifications: { nodes: notifications } } })

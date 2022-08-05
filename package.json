@@ -1,7 +1,7 @@
 {
   "name": "wc-notification-bell",
   "type": "module",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "keywords": [
     "webcomponents",
     "lit"
@@ -47,8 +47,8 @@
     "@commitlint/config-conventional": "^17.0.0",
     "@custom-elements-manifest/analyzer": "^0.5.7",
     "@custom-elements-manifest/to-markdown": "^0.1.0",
-    "@faker-js/faker": "^7.3.0",
     "@lit/localize-tools": "^0.6.4",
+    "@ngneat/falso": "^6.1.0",
     "@types/node": "^17.0.30",
     "@types/ws": "^8.5.3",
     "@types/zen-observable": "^0.8.3",
