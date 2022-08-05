@@ -1,7 +1,7 @@
 {
   "name": "wc-notification-bell",
   "type": "module",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "keywords": [
     "webcomponents",
     "lit"

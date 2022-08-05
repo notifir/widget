@@ -16,8 +16,7 @@ export const bellStyles = css`
     border-radius: 45%;
     height: 0.8rem;
     min-width: 0.7rem;
-    padding-left: 1.5px;
-    padding-right: 1.5px;
+    padding: 0px 1.5px;
     background-color: red;
     color: #FFFFFF;
     text-align: center;
