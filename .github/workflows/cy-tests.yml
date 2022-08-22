@@ -34,3 +34,6 @@ jobs:
           # Recommended: pass the GitHub token lets this action correctly
           # determine the unique run id necessary to re-run the checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_INFO_BRANCH: ${{ github.head_ref }}
+          COMMIT_INFO_AUTHOR: ${{ github.event.sender.login }}
+          COMMIT_INFO_SHA: ${{ github.event.after }}
