@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  e2e-chrome-tests:
+  e2e-tests:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     container:
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: UI Tests - Chrome
+      - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
           start: npm run start
