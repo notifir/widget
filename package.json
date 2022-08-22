@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "analyze": "custom-elements-manifest analyze --globs 'src/index.ts' --outdir dist",
-    "dev": "vite",
+    "start": "vite",
     "build": "tsc && vite build && npm run copy:demo && npm run docs:gen",
     "copy:demo": "cp demo/* dist/",
     "preview": "vite preview",
@@ -31,7 +31,14 @@
     "lint:fix": "eslint . --fix",
     "prepare": "husky install",
     "i18n:extract": "lit-localize extract",
-    "i18n:build": "lit-localize build"
+    "i18n:build": "lit-localize build",
+    "cy:verify": "cypress verify",
+    "cy:info": "cypress info",
+    "cy:version": "cypress version",
+    "cy:cache:list": "cypress cache list",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:record": "cypress run --record"
   },
   "dependencies": {
     "@apollo-elements/lit-apollo": "^5.0.3",
@@ -51,6 +58,7 @@
     "@ngneat/falso": "^6.1.0",
     "@types/node": "^17.0.30",
     "@types/ws": "^8.5.3",
+    "cypress": "^10.6.0",
     "eslint": "^8.14.0",
     "esno": "^0.14.1",
     "graphql": "^15.0.0",

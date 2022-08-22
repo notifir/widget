@@ -156,7 +156,7 @@ export class NotificationBell extends ApolloQuery {
       <div class="item" style=${styleMap(styles.itemContent || nothing)} @click="${() => this._handleItemClick(item.id, item.read, item.actionUrl)}">
         ${!item.read ? html`<div class="item-unread"></div>` : nothing}
         <div class="item-text-primary" style=${styleMap(styles.itemTextPrimary || nothing)}>
-          ${html`${unsafeHTML(item.content)}`}  
+          ${html`${unsafeHTML(item.content)}`}
         </div>
         <div class="item-text-secondary" style=${styleMap(styles.itemTextSecondary || nothing)}>
           ${formatDate(item.createdAt, getLocale())}
@@ -179,9 +179,7 @@ export class NotificationBell extends ApolloQuery {
             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
           </svg>
           ${unreadCount > 0
-            ? html`<div class="bell-counter" style=${styleMap(styles.bellCounter || nothing)}>
-                      ${unreadCount >= 100 ? '99+' : unreadCount}
-                  </div>`
+            ? html`<div class="bell-counter" style=${styleMap(styles.bellCounter || nothing)}>${unreadCount >= 100 ? '99+' : unreadCount}</div>`
             : nothing
           }
         </div>

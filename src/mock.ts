@@ -48,9 +48,12 @@ const generateNotifications = (n: number, locale: string) => {
     })
   }
 
-  return notifications.sort((a, b) =>
+  notifications.sort((a, b) =>
     new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf(),
   )
+  notifications[0].actionUrl = ''
+
+  return notifications
 }
 
 const getAllNotifications = () => Promise.resolve({ data: { allNotifications: { nodes: notifications } } })
