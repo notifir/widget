@@ -9,54 +9,19 @@ on:
       - main
 
 jobs:
-  install:
-    runs-on: ubuntu-latest
-    container:
-      image: cypress/browsers:node16.13.0-chrome95-ff94
-      options: --user 1001
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Cypress install
-        uses: cypress-io/github-action@v4
-        with:
-          runTests: false
-          build: npm run build
-
-      - name: Save build folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
-
   e2e-chrome-tests:
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.13.0-chrome95-ff94
+      image: cypress/browsers:node16.14.0-chrome99-ff97
       options: --user 1001
-    needs: install
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Download the build folders
-        uses: actions/download-artifact@v2
-        with:
-          name: build
-          path: build
 
       - name: UI Tests - Chrome
         uses: cypress-io/github-action@v4
         with:
-          # we have already installed all dependencies above
-          install: false
           start: npm run start
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 10
