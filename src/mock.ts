@@ -28,7 +28,7 @@ const generateNotifications = (n: number, locale: string) => {
   for (let i = 0; i < n; i++) {
     const type = rand(types)
     const template = templates.find(t => t.locale === locale && t.type === type)
-    const date = randBetweenDate({ from: new Date('08/04/2022'), to: currentDate })
+    const date = i === 0 ? currentDate : randBetweenDate({ from: new Date('08/04/2022'), to: currentDate })
     let payload: Payload = {}
     if (type === 'file-copied')
       payload = { file: randFileName(), folder: randJobArea(), user: randFullName() }
@@ -44,7 +44,7 @@ const generateNotifications = (n: number, locale: string) => {
       createdAt: date.toString(),
       updatedAt: date.toString(),
       content: template ? template.content(payload) : '',
-      actionUrl: 'https://notifir.github.io/widget',
+      actionUrl: i === 0 ? '' : 'https://notifir.github.io/widget',
     })
   }
 

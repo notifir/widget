@@ -4,6 +4,7 @@
 [![npm](https://img.shields.io/npm/v/wc-notification-bell)](https://www.npmjs.com/package/wc-notification-bell)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/wc-notification-bell)
 ![jsDelivr hits (npm)](https://img.shields.io/jsdelivr/npm/hy/wc-notification-bell)
+[![widget](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/virqte&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/virqte/runs)
 
 A web component by [lit](https://github.com/lit/lit).
 
