@@ -123,7 +123,7 @@ export class NotificationBell extends ApolloQuery {
         <span class="header-link" style=${styleMap(styles.headerLink || nothing)} @click="${() => this._markAllAsRead(unreadCount)}">
           ${messages.markAllAsRead || msg('Mark all as read', { id: 'mark-all-as-read' })}
         </span>
-        <span class="header-title">${messages.notifications || msg('Notifications', { id: 'notifications' })}</span>
+        <span class="header-title" style=${styleMap(styles.headerTitle || nothing)}>${messages.notifications || msg('Notifications', { id: 'notifications' })}</span>
       </div>
     `
   }
