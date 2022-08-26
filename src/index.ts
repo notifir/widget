@@ -11,6 +11,7 @@ import { getNotifications, markAllAsRead, markAsRead, notificationChanged } from
 import { formatDate } from './util/format'
 import { getLocale, setLocale } from './util/localization'
 import { mockClient } from './mock'
+import { normalize } from './util/locale'
 
 export interface Notification {
   id: string
@@ -20,7 +21,7 @@ export interface Notification {
   read: boolean
   userId: string
   content: string
-  actionUrl: string
+  actionUrl?: string
 }
 
 interface Data {
@@ -89,7 +90,7 @@ export class NotificationBell extends ApolloQuery {
   @property({ type: Object })
     messages = {}
 
-  @property({ type: String })
+  @property({ converter: (value: string | null) => value ? normalize(value) : 'en-GB' })
     locale = 'en-GB'
 
   @state()
@@ -99,7 +100,7 @@ export class NotificationBell extends ApolloQuery {
     this._open = !this._open
   }
 
-  protected async _handleItemClick(id: String, read: boolean, actionUrl: string) {
+  protected async _handleItemClick(id: String, read: boolean, actionUrl?: string) {
     if (this.client && !read)
       await this.client.mutate({ mutation: markAsRead, variables: { id } })
 
@@ -170,7 +171,7 @@ export class NotificationBell extends ApolloQuery {
     const styles = this.styles as Stylesheet
     const nodes = data && (data as Data).allNotifications && (data as Data).allNotifications.nodes
     const items = (nodes || []) as Array<Notification>
-    const unreadCount = items.filter(node => !node.read).length as number
+    const unreadCount = items.filter(node => !node.read && node.content).length as number
 
     return html`
       <div>
